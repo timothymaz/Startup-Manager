@@ -1,6 +1,9 @@
+import os
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 import winreg
+from PIL import Image, ImageTk
+from ttkthemes import ThemedTk
 
 # Function to load startup items
 def load_startup_items():
@@ -27,7 +30,30 @@ def populate_treeview(treeview, filter_text=None):
 
     for name, path, status in startup_items:
         if not filter_text or filter_text.lower() in name.lower():
-            treeview.insert('', 'end', text=name, values=(path, status))
+            # Get the file name and icon
+            file_name = get_exe_path(name)
+            icon = get_exe_icon(path)
+            treeview.insert('', 'end', text=file_name, image=icon, values=(path, status))
+            
+def get_exe_path(name):
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{}.exe'.format(name))
+        path = winreg.QueryValue(key, None)
+        winreg.CloseKey(key)
+        return os.path.abspath(path)
+    except:
+        return None
+
+# Function to get the icon of an executable
+def get_exe_icon(path, size=(16, 16)):
+    try:
+        img = Image.open(path)
+        img.thumbnail(size)
+        icon = ImageTk.PhotoImage(img)
+    except:
+        icon = None
+
+    return icon
 
 # Function to update the status bar
 def update_status_bar(treeview):
@@ -52,10 +78,16 @@ def toggle_status(item_id):
     winreg.CloseKey(startup_key)
 
 # Function to add a new startup item
-def add_startup_item(name, path):
+def add_startup_item():
+    file_path = filedialog.askopenfilename(filetypes=[("Executable files", "*.exe")])
+    
+    if not file_path:
+        return
+
+    name = file_path.split("\\")[-1].split(".")[0]
     key_path = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
     startup_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
-    winreg.SetValueEx(startup_key, name, 0, winreg.REG_SZ, path)
+    winreg.SetValueEx(startup_key, name, 0, winreg.REG_SZ, file_path)
     winreg.CloseKey(startup_key)
 
 # Function to remove a startup item
@@ -115,37 +147,39 @@ def change_theme(theme):
         status_bar.config(bg='#434343')
 
 # Create the main window
-root = tk.Tk()
+root = ThemedTk(theme="radiance")
 root.title('Startup Manager')
 
 # Create the toolbar
 toolbar = tk.Frame(root)
 toolbar.pack(side='top', fill='x')
 
-refresh_button = tk.Button(toolbar, text='Refresh', command=lambda: populate_treeview(treeview))
+refresh_button = ttk.Button(toolbar, text='Refresh', command=lambda: populate_treeview(treeview))
 refresh_button.pack(side='left')
 
-add_button = tk.Button(toolbar, text='Add', command=lambda: add_startup_item("Example", "C:\\Path\\to\\your\\executable.exe"))
+add_button = ttk.Button(toolbar, text='Add', command=add_startup_item)
 add_button.pack(side='left')
 
-remove_button = tk.Button(toolbar, text='Remove', command=lambda: remove_startup_item(treeview.item(treeview.focus())['text']))
+remove_button = ttk.Button(toolbar, text='Remove', command=lambda: remove_startup_item(treeview.item(treeview.focus())['text']))
 remove_button.pack(side='left')
 
-prioritize_button = tk.Button(toolbar, text='Prioritize', command=lambda: prioritize_startup_item(treeview.focus()))
+prioritize_button = ttk.Button(toolbar, text='Prioritize', command=lambda: prioritize_startup_item(treeview.focus()))
 prioritize_button.pack(side='left')
 
-search_label = tk.Label(toolbar, text="Search:")
+search_label = ttk.Label(toolbar, text="Search:")
 search_label.pack(side='left', padx=5)
 
+search_var = tk.StringVar
+
 search_var = tk.StringVar()
-search_entry = tk.Entry(toolbar, textvariable=search_var)
+search_entry = ttk.Entry(toolbar, textvariable=search_var)
 search_entry.pack(side='left')
 
-search_button = tk.Button(toolbar, text='Search', command=lambda: populate_treeview(treeview, filter_text=search_var.get()))
+search_button = ttk.Button(toolbar, text='Search', command=lambda: populate_treeview(treeview, filter_text=search_var.get()))
 search_button.pack(side='left')
 
 # Add a settings button to the toolbar
-settings_button = tk.Button(toolbar, text='Settings', command=open_settings)
+settings_button = ttk.Button(toolbar, text='Settings', command=open_settings)
 settings_button.pack(side='right')
 
 # Create the treeview
@@ -164,11 +198,11 @@ treeview.bind('<Button-3>', show_context_menu)
 populate_treeview(treeview)
 
 # Create the status bar
-status_bar = tk.Frame(root, relief='sunken', bd=1)
+status_bar = ttk.Frame(root, relief='sunken')
 status_bar.pack(side='bottom', fill='x')
 
 status_bar_text = tk.StringVar()
-status_label = tk.Label(status_bar, textvariable=status_bar_text, anchor='w')
+status_label = ttk.Label(status_bar, textvariable=status_bar_text, anchor='w')
 status_label.pack(side='left')
 
 # Update the status bar

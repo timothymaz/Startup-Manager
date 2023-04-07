@@ -18,32 +18,21 @@ Installation
     Download the source code from this repository, and extract the contents to a folder of your choice.
 
     (Optional) Create a virtual environment for the project by running the following command in the project folder:
+    python -m venv venv
 
-sh
+(Optional) Activate the virtual environment:
 
-python -m venv venv
+On Windows:
+    venv\Scripts\activate
 
-    (Optional) Activate the virtual environment:
+On macOS and Linux:
+    source venv/bin/activate
+Install the required dependencies:
 
-    On Windows:
 
-sh
+    pip install -r requirements.txt
 
-venv\Scripts\activate
-
-    On macOS and Linux:
-
-sh
-
-source venv/bin/activate
-
-    Install the required dependencies:
-
-sh
-
-pip install -r requirements.txt
-
-Usage
+## Usage
 
 To run the Startup Manager, execute the following command in the project folder:
 
@@ -52,9 +41,9 @@ sh
 python main.py
 
 The application window will appear, and you can start managing your startup items.
-Contributing
+### Contributing
 
 Contributions are welcome! Feel free to report any issues or suggest new features through the issue tracker or by submitting a pull request.
-License
+### License
 
 This project is licensed under the MIT License.

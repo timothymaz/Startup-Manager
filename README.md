@@ -41,14 +41,14 @@ On macOS and Linux:
 
 To run the Startup Manager, execute the following command in the project folder:
 
-sh
-
-python main.py
+    python main.py
 
 The application window will appear, and you can start managing your startup items.
+
 ### Contributing
 
 Contributions are welcome! Feel free to report any issues or suggest new features through the issue tracker or by submitting a pull request.
+
 ### License
 
 This project is licensed under the MIT License.

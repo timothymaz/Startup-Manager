@@ -1,15 +1,21 @@
 # Startup Manager
 
 Startup Manager is a simple and user-friendly application that helps you manage the programs that run at startup on your Windows computer. With Startup Manager, you can easily add, remove, prioritize, and enable/disable startup items to improve your system's boot time and overall performance.
-Features
+### Features
 
-    View all startup items in an organized list
-    Add new startup items by selecting the executable files
-    Remove unwanted startup items
-    Enable or disable startup items with a double-click
-    Prioritize startup items to control the order in which they run
-    Filter startup items using the search bar
-    Customize the appearance with light and dark themes
+View all startup items in an organized list
+
+Add new startup items by selecting the executable files
+
+Remove unwanted startup items
+
+Enable or disable startup items with a double-click
+
+Prioritize startup items to control the order in which they run
+
+Filter startup items using the search bar
+
+Customize the appearance with light and dark themes
 
 ## Installation
 

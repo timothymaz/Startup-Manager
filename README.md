@@ -1,4 +1,4 @@
-Startup Manager
+# Startup Manager
 
 Startup Manager is a simple and user-friendly Python application that helps you manage your Windows startup items. With Startup Manager, you can enable/disable, add, remove, prioritize, and search for startup items to keep your startup process clean and efficient.
 Features
@@ -11,27 +11,32 @@ Features
     Search for specific startup items
     Customize the look of the application with light and dark themes
 
-Installation
+## Installation
 
-    Ensure that you have Python 3.6 or higher installed on your system. You can download the latest version of Python here.
+1.Ensure that you have Python 3.6 or higher installed on your system. You can download the latest version of Python here.
 
-    Download the source code from this repository, and extract the contents to a folder of your choice.
+2.Download the source code from this repository, and extract the contents to a folder of your choice.
 
-    (Optional) Create a virtual environment for the project by running the following command in the project folder:
+3.(Optional) Create a virtual environment for the project by running the following command in the project folder:
+
     python -m venv venv
 
-(Optional) Activate the virtual environment:
+4.(Optional) Activate the virtual environment:
+
 
 On Windows:
-    venv\Scripts\activate
 
+    venv\Scripts\activate
+    
 On macOS and Linux:
+
     source venv/bin/activate
-Install the required dependencies:
+    
+5.Install the required dependencies:
 
 
     pip install -r requirements.txt
-
+    
 ## Usage
 
 To run the Startup Manager, execute the following command in the project folder:

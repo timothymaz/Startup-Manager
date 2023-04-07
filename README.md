@@ -1,4 +1,4 @@
-Startup Manager
+# Startup Manager
 
 Startup Manager is a simple and user-friendly Python application that helps you manage your Windows startup items. With Startup Manager, you can enable/disable, add, remove, prioritize, and search for startup items to keep your startup process clean and efficient.
 Features
@@ -11,7 +11,7 @@ Features
     Search for specific startup items
     Customize the look of the application with light and dark themes
 
-Installation
+## Installation
 
     Ensure that you have Python 3.6 or higher installed on your system. You can download the latest version of Python here.
 

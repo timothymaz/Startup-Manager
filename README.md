@@ -13,11 +13,11 @@ Features
 
 ## Installation
 
-To use Startup Manager, you'll need to have Python installed on your system. You can download Python from the official website.
+To use Startup Manager, you'll need to have Python installed on your system. You can download Python from the official website. https://www.python.org/downloads/
 
 Next, clone this repository to your local machine:
 
-    git clone https://github.com/yourusername/Startup-Manager.git
+    git clone https://github.com/timothymaz/Startup-Manager.git
 
 Navigate to the project directory:
 

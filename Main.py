@@ -4,6 +4,26 @@ from tkinter import ttk, filedialog
 import winreg
 from PIL import Image, ImageTk
 from ttkthemes import ThemedTk
+import win32ui
+import win32gui
+import win32con
+
+class IconTreeview(ttk.Treeview):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def insert(self, parent, index, iid=None, **kw):
+        if 'image' in kw:
+            image = kw.pop('image')
+            res = super().insert(parent, index, iid, **kw)
+            self.icon_configure(res, image)
+            return res
+        else:
+            return super().insert(parent, index, iid, **kw)
+
+    def icon_configure(self, item, image):
+        self.column('#0', width=max(self.column('#0', 'width'), image.width() + 6))
+        self.tag_configure(item, image=image)
 
 # Function to load startup items
 def load_startup_items():
@@ -30,26 +50,55 @@ def populate_treeview(treeview, filter_text=None):
 
     for name, path, status in startup_items:
         if not filter_text or filter_text.lower() in name.lower():
-            # Get the file name and icon
-            file_name = get_exe_path(name)
+            # Get the file path, program name, and icon
+            file_path, program_name = get_exe_path(name)
+            if file_path is None:
+                file_path = path
             icon = get_exe_icon(path)
-            treeview.insert('', 'end', text=file_name, image=icon, values=(path, status))
-            
+            if icon is None:
+                icon = root.blank_icon
+            item_id = treeview.insert('', 'end', text=name, values=(file_path, status), image=icon)
+
+
+
 def get_exe_path(name):
     try:
         key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{}.exe'.format(name))
         path = winreg.QueryValue(key, None)
         winreg.CloseKey(key)
-        return os.path.abspath(path)
+        program_name = os.path.basename(path).split(".")[0]
+        return os.path.abspath(path), program_name
     except:
-        return None
+        return None, None
 
 # Function to get the icon of an executable
 def get_exe_icon(path, size=(16, 16)):
     try:
-        img = Image.open(path)
-        img.thumbnail(size)
+        # Load the executable file
+        large, small = win32gui.ExtractIconEx(path, 0)
+        win32gui.DestroyIcon(large[0])
+
+        # Convert the icon to a bitmap
+        hicon = small[0]
+        hdc = win32ui.CreateDCFromHandle(win32gui.GetDC(0))
+        hbmp = win32ui.CreateBitmap()
+        hbmp.CreateCompatibleBitmap(hdc, size[0], size[1])
+
+        # Draw the icon to the bitmap
+        hdc = hdc.CreateCompatibleDC()
+        hdc.SelectObject(hbmp)
+        win32gui.DrawIconEx(hdc.GetHandleOutput(), 0, 0, hicon, size[0], size[1], 0, None, win32con.DI_NORMAL)
+
+        # Convert the bitmap to a PIL image
+        bmpinfo = hbmp.GetInfo()
+        bmpstr = hbmp.GetBitmapBits(True)
+        img = Image.frombuffer('RGBA', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmpstr, 'raw', 'BGRA', 0, 1)
+
+        # Create a PhotoImage from the PIL image
         icon = ImageTk.PhotoImage(img)
+
+        # Clean up
+        win32gui.DestroyIcon(hicon)
     except:
         icon = None
 
@@ -148,7 +197,13 @@ def change_theme(theme):
 
 # Create the main window
 root = ThemedTk(theme="radiance")
+root.blank_icon = ImageTk.PhotoImage(Image.new('RGBA', (16, 16), (0, 0, 0, 0)))
+
 root.title('Startup Manager')
+style = ttk.Style()
+style.configure("Treeview", rowheight=20)
+style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])  # Remove the column headers
+
 
 # Create the toolbar
 toolbar = tk.Frame(root)
@@ -183,10 +238,14 @@ settings_button = ttk.Button(toolbar, text='Settings', command=open_settings)
 settings_button.pack(side='right')
 
 # Create the treeview
-treeview = ttk.Treeview(root, columns=('Path', 'Status'), show='headings')
+treeview = IconTreeview(root, columns=('Path', 'Status'), style="Treeview")
 treeview.heading('Path', text='Path')
 treeview.heading('Status', text='Enabled')
+treeview.column("#0", width=0, stretch="NO")  # Hide the first column
+
+treeview.column("Path", width=400, anchor="w")  # Set the width and anchor of the Path column
 treeview.pack(fill='both', expand=True)
+
 
 # Bind double-click event to toggle enable/disable
 treeview.bind('<Double-1>', lambda event: toggle_status(treeview.focus()))
